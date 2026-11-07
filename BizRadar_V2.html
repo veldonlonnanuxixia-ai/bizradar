@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#10213b">
+<title>BizRadar — Trouve quoi vendre</title>
+<style>
+:root{--navy:#10213b;--green:#20b987;--ink:#182235;--muted:#667085;--bg:#f4f7fb;--line:#e5eaf1}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
+header{background:linear-gradient(135deg,#10213b,#1b3b5d);color:white;padding:26px 18px 30px}
+.wrap{max-width:850px;margin:auto}.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px}.logo{width:40px;height:40px;border-radius:13px;background:var(--green);display:grid;place-items:center;color:#073326;font-size:23px}
+.tag{display:inline-block;border:1px solid #3c6b75;color:#b8f5df;border-radius:20px;padding:5px 10px;font-size:12px;margin-top:18px}
+h1{font-size:clamp(28px,6vw,43px);line-height:1.08;margin:15px 0 10px;max-width:650px}header p{color:#d3dfed;max-width:600px;margin:0;line-height:1.55}
+main{max-width:850px;margin:-12px auto 40px;padding:0 14px}.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 7px 24px #10213b0a}
+h2{font-size:19px;margin:0 0 14px}.field{margin-bottom:17px}label{display:block;font-weight:650;margin-bottom:8px}
+input,select{width:100%;padding:13px 14px;border:1px solid #cfd8e3;border-radius:11px;font:inherit;background:white;color:var(--ink)}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:12px}.btn{width:100%;border:0;background:var(--green);color:#063b2c;padding:14px;border-radius:12px;font-weight:800;font-size:16px;cursor:pointer}.btn:hover{filter:brightness(.96)}
+.note{font-size:12px;color:var(--muted);line-height:1.5}.results-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.count{font-size:12px;background:#e5f8f1;color:#08764f;padding:6px 10px;border-radius:20px;font-weight:700}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.product{border:1px solid var(--line);border-radius:14px;padding:15px;cursor:pointer;background:#fff;text-align:left;color:inherit}.product.selected{border:2px solid var(--green);background:#f4fffa;padding:14px}.emoji{font-size:25px}.product h3{font-size:16px;margin:8px 0 5px}.product p{font-size:13px;color:var(--muted);min-height:38px;margin:0 0 12px}.price{font-size:12px;line-height:1.7}.profit{font-weight:800;color:#08764f;margin-top:5px}
+.detail{background:#f5f8fb;border-radius:14px;padding:16px;margin-top:14px}.detail h3{margin:0 0 10px}.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}.row:last-of-type{border:0}.big{font-size:23px;color:#08764f;font-weight:850}
+.empty{padding:18px;text-align:center;color:var(--muted);background:#f7f9fc;border-radius:12px}
+footer{text-align:center;color:#718096;font-size:12px;padding:10px 20px 30px}
+@media(max-width:560px){.filters,.cards{grid-template-columns:1fr}.panel{padding:16px}.product p{min-height:0}}
+
+.supplier-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.supplier{border:1px solid var(--line);border-radius:14px;padding:15px;background:#fff}
+.supplier h3{font-size:16px;margin:0 0 6px}.supplier .where{font-size:13px;color:var(--muted);margin:0 0 8px}
+.supplier .contact{font-weight:750;font-size:14px;margin:5px 0}
+.supplier a{color:#08764f;font-size:13px;overflow-wrap:anywhere}
+@media(max-width:560px){.supplier-list{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand"><div class="logo">⌁</div> BizRadar</div>
+  <div class="tag">PROTOTYPE • BURKINA FASO 🇧🇫</div>
+  <h1>Trouve quoi vendre. Commence petit.</h1>
+  <p>Explore des idées de produits adaptées à ton budget et découvre une estimation simple de leur marge.</p>
+</div></header>
+<main>
+  <section class="panel">
+    <h2>Décris ton projet</h2>
+    <div class="filters">
+      <div class="field"><label for="budget">Ton budget (FCFA)</label><input id="budget" type="number" min="1" value="10000" placeholder="Ex. 10000"></div>
+      <div class="field"><label for="city">Ta ville</label><select id="city"><option>Ouagadougou</option><option>Bobo-Dioulasso</option><option>Koudougou</option><option>Autre ville</option></select></div>
+    </div>
+    <div class="field"><label for="category">Catégorie de produits</label><select id="category"><option value="Tout">Toutes les catégories</option><option>Téléphonie</option><option>Mode</option><option>Scolaire</option><option>Alimentation</option></select></div>
+    <button class="btn" id="search">Trouver quoi vendre</button>
+    <p class="note">Les prix affichés sont des exemples fictifs pour tester le site. Vérifie toujours les prix auprès de fournisseurs locaux avant d'acheter.</p>
+  </section>
+  <section class="panel" id="results" hidden>
+    <div class="results-head"><h2>Produits à explorer</h2><span class="count" id="count"></span></div>
+    <div class="cards" id="cards"></div>
+    <div class="detail" id="detail" hidden></div>
+  </section>
+
+  <section class="panel" id="fournisseurs">
+    <h2>Fournisseurs à Ouagadougou</h2>
+    <p class="note">Coordonnées trouvées dans des annuaires et pages publiques. Appelle avec un parent ou un adulte de confiance pour vérifier l'adresse, les horaires, les stocks et les prix de gros. Leur présence ici ne garantit ni la qualité ni la disponibilité des produits.</p>
+    <div class="supplier-list">
+      <article class="supplier">
+        <h3>Amza Futur Télécom</h3>
+        <p class="where">Koulouba · accessoires de téléphones · grossiste annoncé</p>
+        <p class="contact">+226 76 66 66 75</p>
+        <a href="https://www.findglocal.com/BF/Ouagadougou/164712017718574/Amza-Futur-T%C3%A9l%C3%A9com" target="_blank" rel="noopener">Voir la fiche publique</a>
+      </article>
+      <article class="supplier">
+        <h3>SANA Accessoires International SARL</h3>
+        <p class="where">Koulouba / Zabré-Daaga · accessoires et pièces téléphoniques</p>
+        <p class="contact">+226 71 97 68 99</p>
+        <a href="https://www.findglocal.com/BF/Ouagadougou/114521887930490/SANA-accessoires-international-Sarl" target="_blank" rel="noopener">Voir la fiche publique</a>
+      </article>
+      <article class="supplier">
+        <h3>Idriss Télécom</h3>
+        <p class="where">Koulouba · grossiste d'accessoires électroniques indiqué dans un annuaire</p>
+        <p class="contact">+226 54 49 79 04</p>
+        <span class="note">Adresse et conditions à confirmer.</span>
+      </article>
+      <article class="supplier">
+        <h3>Kiss Telecom</h3>
+        <p class="where">Patte d'Oie · accessoires et pièces téléphoniques</p>
+        <p class="contact">+226 78 89 89 82</p>
+        <span class="note">Vente en gros annoncée dans des informations publiques ; à confirmer.</span>
+      </article>
+      <article class="supplier">
+        <h3>KabShop</h3>
+        <p class="where">Zabré-Daaga · accessoires téléphoniques, gros et détail annoncés</p>
+        <p class="contact">+226 72 19 70 08</p>
+        <a href="https://www.globuya.com/BF/Ouagadougou/690229374177524/Kabshop" target="_blank" rel="noopener">Voir la fiche publique</a>
+      </article>
+      <article class="supplier">
+        <h3>Amirox</h3>
+        <p class="where">Zabré-Daaga / Tanghin · téléphones et accessoires, gros et détail annoncés</p>
+        <p class="contact">+226 72 85 01 30</p>
+        <a href="https://www.globuya.com/BF/Ouagadougou/103007249132561/Amirox" target="_blank" rel="noopener">Voir la fiche publique</a>
+      </article>
+    </div>
+    <p class="note">Astuce : demande le prix pour une seule pièce et pour 5 ou 10 pièces, la quantité minimale, la possibilité de retour en cas de défaut et un reçu. Ne paie pas à l'avance sans vérification par un adulte.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Comment utiliser BizRadar ?</h2>
+    <p class="note">1. Entre ton budget. 2. Choisis une catégorie. 3. Compare les idées proposées. 4. Demande les prix à plusieurs fournisseurs et teste l'intérêt des clients avant d'investir.</p>
+    <p class="note"><strong>À savoir :</strong> la marge brute estimée correspond au prix de vente moins le prix d'achat. Elle ne tient pas compte du transport, des emballages, des pertes ni des autres frais. Ce prototype ne consulte pas encore les stocks, les prix réels ou les tendances du marché.</p>
+  </section>
+</main>
+<footer>BizRadar · Prototype éducatif · Pas une garantie de bénéfice</footer>
+<script>
+const products=[
+ {name:"Coques de téléphone",cat:"Téléphonie",buy:700,sell:1500,emoji:"📱",desc:"Coques pour des modèles de téléphones populaires.",customers:"Personnes qui veulent protéger ou personnaliser leur téléphone."},
+ {name:"Supports de téléphone",cat:"Téléphonie",buy:1000,sell:2000,emoji:"📲",desc:"Supports pour regarder des vidéos ou suivre des cours.",customers:"Élèves, étudiants et personnes qui regardent des vidéos."},
+ {name:"Écouteurs filaires",cat:"Téléphonie",buy:1000,sell:2000,emoji:"🎧",desc:"Écouteurs simples pour écouter de l'audio.",customers:"Utilisateurs de téléphones compatibles."},
+ {name:"Bracelets fantaisie",cat:"Mode",buy:300,sell:1000,emoji:"📿",desc:"Petits accessoires de mode à offrir ou porter.",customers:"Personnes intéressées par les petits accessoires."},
+ {name:"Petits sacs",cat:"Mode",buy:2000,sell:3500,emoji:"👜",desc:"Sacs pratiques pour les sorties.",customers:"Personnes qui cherchent un sac à petit prix."},
+ {name:"Cahiers",cat:"Scolaire",buy:400,sell:600,emoji:"📚",desc:"Fournitures utiles pour les cours.",customers:"Élèves et familles, surtout à la rentrée."},
+ {name:"Stylos",cat:"Scolaire",buy:100,sell:200,emoji:"🖊️",desc:"Stylos pour les devoirs et la prise de notes.",customers:"Élèves, étudiants et petits bureaux."},
+ {name:"Jus de bissap",cat:"Alimentation",buy:250,sell:500,emoji:"🥤",desc:"Boisson locale à préparer et vendre dans de bonnes conditions d'hygiène.",customers:"Clients à proximité, sous réserve des règles locales d'hygiène."}
+];
+const budget=document.getElementById('budget'),category=document.getElementById('category'),results=document.getElementById('results'),cards=document.getElementById('cards'),detail=document.getElementById('detail'),count=document.getElementById('count');
+let selected=null;
+const money=n=>n.toLocaleString('fr-FR')+' FCFA';
+function showDetail(p){
+ selected=p;
+ detail.hidden=false;
+ detail.innerHTML=`<h3>${p.emoji} ${p.name}</h3><p class="note">${p.desc}</p>
+ <div class="row"><span>Prix d'achat estimé / unité</span><strong>${money(p.buy)}</strong></div>
+ <div class="row"><span>Prix de vente envisagé / unité</span><strong>${money(p.sell)}</strong></div>
+ <div class="row"><span>Marge brute estimée / unité</span><strong class="big">${money(p.sell-p.buy)}</strong></div>
+ <p class="note"><strong>Clients potentiels :</strong> ${p.customers}</p>
+ <p class="note">Ces montants sont des hypothèses de démonstration, pas des prix vérifiés. Confirme les coûts, la demande et les frais avant tout achat.</p>`;
+ document.querySelectorAll('.product').forEach(el=>el.classList.toggle('selected',el.dataset.name===p.name));
+}
+document.getElementById('search').addEventListener('click',()=>{
+ const b=Number(budget.value);
+ if(!Number.isFinite(b)||b<=0){alert('Entre un budget supérieur à 0 FCFA.');return;}
+ const list=products.filter(p=>(category.value==='Tout'||p.cat===category.value)&&p.buy<=b);
+ results.hidden=false;detail.hidden=true;selected=null;cards.innerHTML='';count.textContent=list.length+' idée(s)';
+ if(!list.length){cards.innerHTML='<div class="empty">Aucun produit de cette catégorie ne correspond à ce budget. Essaie une autre catégorie ou un budget différent.</div>';return;}
+ list.forEach(p=>{
+  const button=document.createElement('button');button.type='button';button.className='product';button.dataset.name=p.name;
+  button.innerHTML=`<div class="emoji">${p.emoji}</div><h3>${p.name}</h3><p>${p.desc}</p><div class="price">Achat : <strong>${money(p.buy)}</strong><br>Vente envisagée : <strong>${money(p.sell)}</strong></div><div class="profit">Marge brute : ${money(p.sell-p.buy)}</div>`;
+  button.addEventListener('click',()=>showDetail(p));cards.appendChild(button);
+ });
+});
+</script>
+</body>
+</html>
